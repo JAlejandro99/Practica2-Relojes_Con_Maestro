@@ -1,13 +1,109 @@
 package practica_2.relojes_con_maestro;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+
 public class Ventana2 extends javax.swing.JFrame {
     public Ventana2() {
+        //Integer numeroReloj;
         initComponents();
         this.setLocationRelativeTo(null);
         iniciarServidor();
         RelojGrafico r1 = new RelojGrafico(false,15,15);
         r1.run();
         this.jPanel1.add(r1);
+        Thread cl = new Thread(){
+            public void run(){
+                r1.boton2.addActionListener(new ActionListener(){
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("Presionado");
+                    }
+                });
+                final int PUERTO = 5000;
+		byte[] buffer = new byte[1024];
+		try{
+                    InetAddress direccionServidor = InetAddress.getByName("localhost");
+                    DatagramSocket socketUDP = new DatagramSocket();
+                    String mensaje = "Iniciar";
+                    buffer = mensaje.getBytes();
+                    DatagramPacket pregunta = new DatagramPacket(buffer,buffer.length,direccionServidor,PUERTO);
+                    System.out.println("Envio el datagrama");
+                    //Inicia el proceso de sincronización
+                    socketUDP.send(pregunta);
+                    buffer = new byte[1024];
+                    DatagramPacket peticion = new DatagramPacket(buffer,buffer.length);
+                    socketUDP.receive(peticion);
+                    System.out.println("Recibo la peticion");
+                    mensaje = new String(peticion.getData());
+                    System.out.println(mensaje);
+                    Integer[] respuesta = new Integer[4];
+                    int i,aux=0,k=0;
+                    for(i=0;i<mensaje.length();i++){
+                        if(mensaje.charAt(i)==','){
+                            respuesta[k] = Integer.valueOf(mensaje.substring(aux,i));
+                            aux=i+1;
+                            System.out.println(respuesta[k]);
+                            k+=1;
+                        }
+                    }
+                    r1.reasignarHora(respuesta[0], respuesta[1], respuesta[2]);
+                    System.out.println(respuesta[3]);
+                    while(true){
+                        buffer = new byte[1024];
+                        peticion = new DatagramPacket(buffer,buffer.length);
+                        socketUDP.receive(peticion);
+                        System.out.println("Recibo la peticion");
+                        mensaje = new String(peticion.getData());
+                        System.out.println(mensaje);
+                        respuesta = new Integer[4];
+                        aux=0;
+                        k=0;
+                        for(i=0;i<mensaje.length();i++){
+                            if(mensaje.charAt(i)==','){
+                                respuesta[k] = Integer.valueOf(mensaje.substring(aux,i));
+                                aux=i+1;
+                                System.out.println(respuesta[k]);
+                                k+=1;
+                            }
+                        }
+                        r1.reasignarHora(respuesta[0], respuesta[1], respuesta[2]);
+                        //
+                        mensaje = String.valueOf(respuesta[3]);
+                        System.out.println(mensaje);
+                        buffer = new byte[1024];
+                        buffer = mensaje.getBytes();
+                        pregunta = new DatagramPacket(buffer,buffer.length,direccionServidor,PUERTO);
+                        System.out.println("Envio el datagrama");
+                        //Inicia el proceso de sincronización
+                        socketUDP.send(pregunta);
+                        buffer = new byte[1024];
+                        peticion = new DatagramPacket(buffer,buffer.length);
+                        socketUDP.receive(peticion);
+                        System.out.println("Recibo la peticion");
+                        mensaje = new String(peticion.getData());
+                        System.out.println(mensaje);
+                        respuesta = new Integer[4];
+                        aux=0;
+                        k=0;
+                        for(i=0;i<mensaje.length();i++){
+                            if(mensaje.charAt(i)==','){
+                                respuesta[k] = Integer.valueOf(mensaje.substring(aux,i));
+                                aux=i+1;
+                                System.out.println(respuesta[k]);
+                                k+=1;
+                            }
+                        }
+                        r1.reasignarHora(respuesta[0], respuesta[1], respuesta[2]);
+                    }
+                    //socketUDP.close();
+		}catch(IOException e){}
+            }
+        };
+        cl.start();
     }
     public void iniciarServidor(){
     }

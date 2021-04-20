@@ -1,14 +1,25 @@
 package practica_2.relojes_con_maestro;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+
 public class Ventana1 extends javax.swing.JFrame {
+    RelojGrafico r1,r2,r3,r4;
+    int numeroReloj;
+    DatagramSocket socketUDP;
+    InetAddress[] direccion;
+    int[] puertoCliente;
     public Ventana1() {
         initComponents();
         this.setLocationRelativeTo(null);
-        iniciarServidor();
-        RelojGrafico r1 = new RelojGrafico(false,328,50);
-        RelojGrafico r2 = new RelojGrafico(true,38,205);
-        RelojGrafico r3 = new RelojGrafico(true,328,205);
-        RelojGrafico r4 = new RelojGrafico(true,618,205);
+        r1 = new RelojGrafico(false,328,50);
+        r2 = new RelojGrafico(true,38,205);
+        r3 = new RelojGrafico(true,328,205);
+        r4 = new RelojGrafico(true,618,205);
         r1.run();
         r2.run();
         r3.run();
@@ -17,8 +28,91 @@ public class Ventana1 extends javax.swing.JFrame {
         this.jPanel1.add(r2);
         this.jPanel1.add(r3);
         this.jPanel1.add(r4);
+        numeroReloj = 0;
+        direccion = new InetAddress[3];
+        puertoCliente = new int[3];
+        iniciarServidor();
+    }
+    public void enviar(int reloj){
+        try{
+            Integer[] hora;
+            if(reloj==0)
+                hora = r2.getHora();
+            else if(reloj==1)
+                hora = r3.getHora();
+            else
+                hora = r4.getHora();
+            String resp = String.valueOf(hora[0])+",";
+            resp += String.valueOf(hora[1])+",";
+            resp += String.valueOf(hora[2])+",";
+            resp += String.valueOf(reloj)+",";
+            System.out.println(resp);
+            byte[] buffer = new byte[1024];
+            buffer = resp.getBytes();
+            DatagramPacket respuesta = new DatagramPacket(buffer,buffer.length,direccion[reloj],puertoCliente[reloj]);
+            System.out.println("Envio la informacion del cliente");
+            socketUDP.send(respuesta);
+        }catch(IOException e){}
     }
     public void iniciarServidor(){
+        Thread sv = new Thread(){
+            public void run(){
+                r2.boton2.addActionListener(new ActionListener(){
+                    public void actionPerformed(ActionEvent e) {
+                        enviar(0);
+                    }
+                });
+                r3.boton2.addActionListener(new ActionListener(){
+                    public void actionPerformed(ActionEvent e) {
+                        enviar(1);
+                    }
+                });
+                r4.boton2.addActionListener(new ActionListener(){
+                    public void actionPerformed(ActionEvent e) {
+                        enviar(2);
+                    }
+                });
+                final int PUERTO = 5000;
+		byte[] buffer = new byte[1024];
+		try{
+                    System.out.println("Iniciando el servidor UDP");
+                    socketUDP = new DatagramSocket(PUERTO);
+                    while(true){
+                        buffer = new byte[1024];
+			DatagramPacket peticion = new DatagramPacket(buffer,buffer.length);
+                        socketUDP.receive(peticion);
+                        System.out.println("Recibo la informacion del cliente");
+                        String mensaje = new String(peticion.getData());
+                        //El cliente solo puede pedir la hora de su reloj
+                        System.out.println("Recibido: "+mensaje);
+                        puertoCliente[numeroReloj] = peticion.getPort();
+                        direccion[numeroReloj] = peticion.getAddress();
+                        Integer[] hora;
+                        if(!mensaje.startsWith("Iniciar")){
+                            numeroReloj = Integer.valueOf(mensaje.substring(0,1));
+                        }
+                        if(numeroReloj==0)
+                            hora = r2.getHora();
+                        else if(numeroReloj==1)
+                            hora = r3.getHora();
+                        else
+                            hora = r4.getHora();
+                        String resp = String.valueOf(hora[0])+",";
+                        resp += String.valueOf(hora[1])+",";
+                        resp += String.valueOf(hora[2])+",";
+                        resp += String.valueOf(numeroReloj)+",";
+                        System.out.println(resp);
+                        buffer = new byte[1024];
+                        buffer = resp.getBytes();
+                        DatagramPacket respuesta = new DatagramPacket(buffer,buffer.length,direccion[numeroReloj],puertoCliente[numeroReloj]);
+                        System.out.println("Envio la informacion del cliente");
+                        socketUDP.send(respuesta);
+                        numeroReloj+=1;
+                    }
+                }catch(IOException e){}
+            }
+        };
+        sv.start();
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

@@ -16,13 +16,15 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 public class RelojGrafico extends JPanel implements Runnable {
-    JButton boton;
-    int horas;
-    int minutos;
-    int segundos;
-    float velocidad;
-    boolean aleatorio,continuar;
-    Thread reloj;
+    public JButton boton;
+    public JButton boton2;
+    public int horas;
+    public int minutos;
+    public int segundos;
+    public float velocidad;
+    public boolean aleatorio,continuar;
+    public Thread reloj;
+    public ReajustarHora rh;
     
     public RelojGrafico(boolean aleatorio, int x, int y){
         horas = 0;
@@ -33,7 +35,7 @@ public class RelojGrafico extends JPanel implements Runnable {
         this.setBackground(new Color(38,70,95));
         this.inicializarBoton();
         this.aleatorio = aleatorio;
-        continuar = true;      
+        continuar = true;
     }
     public Integer[] getHora(){
         Integer[] ret = new Integer[3];
@@ -80,7 +82,7 @@ public class RelojGrafico extends JPanel implements Runnable {
     protected void botonDigitado(){
         //Detener reloj, modificar hora y seguir ejecutando el reloj
         continuar = false;
-        ReajustarHora rh = new ReajustarHora();
+        rh = new ReajustarHora();
         rh.setTitle("Reajustar hora");
         rh.setVisible(true);      
         rh.aceptar.addActionListener(new ActionListener(){
@@ -94,6 +96,13 @@ public class RelojGrafico extends JPanel implements Runnable {
                 iniciarReloj();
             }
         });
+    }
+    public void reasignarHora(int horas, int minutos, int segundos){
+        this.horas = horas;
+        this.minutos = minutos;
+        this.segundos = segundos;
+        this.velocidad = 1;
+        repaint();
     }
     protected void inicializarBoton(){
         boton = new JButton();
@@ -111,6 +120,16 @@ public class RelojGrafico extends JPanel implements Runnable {
             }
         });
         this.add(boton);
+        boton2 = new JButton();
+        ImageIcon icono2=new ImageIcon((new ImageIcon("src/icons/enviado2.png").getImage()).getScaledInstance(26,26,Image.SCALE_SMOOTH));
+        boton2.setIcon(icono2);
+        boton2.setSize(37,37);
+        boton2.setOpaque(false);
+        boton2.setBackground(new Color(0,0,0,0));
+        boton2.setBorderPainted(false);
+        this.setLayout(null);
+        boton2.setBounds(220,35,30,30);
+        this.add(boton2);
     }
     @Override
     public void paint(Graphics g){
