@@ -14,6 +14,8 @@ public class Ventana2 extends javax.swing.JFrame {
         this.setLocationRelativeTo(null);
         iniciarServidor();
         RelojGrafico r1 = new RelojGrafico(false,15,15);
+        r1.remove(r1.boton);
+        r1.remove(r1.boton2);
         r1.run();
         this.jPanel1.add(r1);
         Thread cl = new Thread(){
