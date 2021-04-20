@@ -29,8 +29,8 @@ public class Ventana1 extends javax.swing.JFrame {
         this.jPanel1.add(r3);
         this.jPanel1.add(r4);
         numeroReloj = 0;
-        direccion = new InetAddress[3];
-        puertoCliente = new int[3];
+        direccion = new InetAddress[4];
+        puertoCliente = new int[4];
         iniciarServidor();
     }
     public void enviar(int reloj){
@@ -85,8 +85,13 @@ public class Ventana1 extends javax.swing.JFrame {
                         String mensaje = new String(peticion.getData());
                         //El cliente solo puede pedir la hora de su reloj
                         System.out.println("Recibido: "+mensaje);
-                        puertoCliente[numeroReloj] = peticion.getPort();
-                        direccion[numeroReloj] = peticion.getAddress();
+                        if(numeroReloj>2){
+                            puertoCliente[3] = peticion.getPort();
+                            direccion[3] = peticion.getAddress();
+                        }else{
+                            puertoCliente[numeroReloj] = peticion.getPort();
+                            direccion[numeroReloj] = peticion.getAddress();
+                        }
                         Integer[] hora;
                         if(!mensaje.startsWith("Iniciar")){
                             numeroReloj = Integer.valueOf(mensaje.substring(0,1));
