@@ -1,5 +1,3 @@
-package practica_2.relojes_con_maestro;
-
 public class Practica_2RelojesConMaestroServidor {
     public static void main(String[] args) {
         Ventana1 v1 = new Ventana1();

@@ -1,5 +1,3 @@
-package practica_2.relojes_con_maestro;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -8,27 +6,31 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 public class Ventana2 extends javax.swing.JFrame {
+    int PUERTO = 5000;
+    String servidor="localhost";
+    RelojGrafico r1;
     public Ventana2() {
-        //Integer numeroReloj;
         initComponents();
+    }
+    public Ventana2(int p, String s) {
+        initComponents();
+        PUERTO = p;
+        servidor = s;
         this.setLocationRelativeTo(null);
-        iniciarServidor();
-        RelojGrafico r1 = new RelojGrafico(false,15,15);
+        r1 = new RelojGrafico(false,15,15);
         r1.remove(r1.boton);
         r1.remove(r1.boton2);
         r1.run();
         this.jPanel1.add(r1);
+        iniciarCliente();
+    }
+    public void iniciarCliente(){
         Thread cl = new Thread(){
             public void run(){
-                r1.boton2.addActionListener(new ActionListener(){
-                    public void actionPerformed(ActionEvent e) {
-                        System.out.println("Presionado");
-                    }
-                });
-                final int PUERTO = 5000;
 		byte[] buffer = new byte[1024];
+                //
 		try{
-                    InetAddress direccionServidor = InetAddress.getByName("localhost");
+                    InetAddress direccionServidor = InetAddress.getByName(servidor);
                     DatagramSocket socketUDP = new DatagramSocket();
                     String mensaje = "Iniciar";
                     buffer = mensaje.getBytes();
@@ -48,12 +50,12 @@ public class Ventana2 extends javax.swing.JFrame {
                         if(mensaje.charAt(i)==','){
                             respuesta[k] = Integer.valueOf(mensaje.substring(aux,i));
                             aux=i+1;
-                            System.out.println(respuesta[k]);
+                            //System.out.println(respuesta[k]);
                             k+=1;
                         }
                     }
                     r1.reasignarHora(respuesta[0], respuesta[1], respuesta[2]);
-                    System.out.println(respuesta[3]);
+                    //System.out.println(respuesta[3]);
                     while(true){
                         buffer = new byte[1024];
                         peticion = new DatagramPacket(buffer,buffer.length);
@@ -68,7 +70,7 @@ public class Ventana2 extends javax.swing.JFrame {
                             if(mensaje.charAt(i)==','){
                                 respuesta[k] = Integer.valueOf(mensaje.substring(aux,i));
                                 aux=i+1;
-                                System.out.println(respuesta[k]);
+                                //System.out.println(respuesta[k]);
                                 k+=1;
                             }
                         }
@@ -77,7 +79,7 @@ public class Ventana2 extends javax.swing.JFrame {
                         /*long TInicio, TFin, tiempo; //Variables para determinar el tiempo de ejecución
                         TInicio = System.currentTimeMillis();*/
                         //Iniciamos a contar, esto es T0
-                        mensaje = String.valueOf(respuesta[3]);
+                        /*mensaje = String.valueOf(respuesta[3]);
                         System.out.println(mensaje);
                         buffer = new byte[1024];
                         buffer = mensaje.getBytes();
@@ -109,15 +111,13 @@ public class Ventana2 extends javax.swing.JFrame {
                         if(tiempo){
                             
                         }*/
-                        r1.reasignarHora(respuesta[0], respuesta[1], respuesta[2]);
+                        //r1.reasignarHora(respuesta[0], respuesta[1], respuesta[2]);
                     }
                     //socketUDP.close();
 		}catch(IOException e){}
             }
         };
         cl.start();
-    }
-    public void iniciarServidor(){
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -130,7 +130,6 @@ public class Ventana2 extends javax.swing.JFrame {
         jMenu1.setText("jMenu1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(310, 225));
 
         jPanel1.setBackground(new java.awt.Color(38, 70, 95));
 

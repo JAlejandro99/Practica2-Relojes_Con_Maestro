@@ -1,5 +1,3 @@
-package practica_2.relojes_con_maestro;
-
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Font;

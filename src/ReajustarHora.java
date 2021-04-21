@@ -1,5 +1,3 @@
-package practica_2.relojes_con_maestro;
-
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 

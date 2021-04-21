@@ -1,5 +1,3 @@
-package practica_2.relojes_con_maestro;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -130,7 +128,6 @@ public class Ventana1 extends javax.swing.JFrame {
         jMenu1.setText("jMenu1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(923, 450));
 
         jPanel1.setBackground(new java.awt.Color(38, 70, 95));
 
